@@ -1,4 +1,4 @@
-# Bootcamp API - Typescript & vanilla mongoDB client & Zod
+# Bootcamp API - Typescript & vanilla mongoDB & Zod
 
 - TS + Mongoose version is in this (repo)[https://github.com/dvinubius/bootcamp-api-ts-goose]
 
