@@ -1,8 +1,8 @@
 # Bootcamp API - Typescript & vanilla mongoDB & Zod
 
-- TS + Mongoose version is in this (repo)[https://github.com/dvinubius/bootcamp-api-ts-goose]
+- TS + Mongoose version is in this [repo](https://github.com/dvinubius/bootcamp-api-ts-goose)
 
-- Reference to medium (article(s))[https://medium.com]
+- Reference to medium [article(s)](https://medium.com)
 
 ### TODO medium link
 
