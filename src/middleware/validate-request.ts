@@ -6,9 +6,6 @@ import RequestValidator from '../types/request-validator.type.js';
 export const validateRequest = (validators: RequestValidator) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
-      if (validators.params) {
-        req.params = await validators.params.parseAsync(req.params);
-      }
       if (validators.body) {
         req.body = await validators.body.parseAsync(req.body);
       }

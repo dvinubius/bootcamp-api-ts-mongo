@@ -22,6 +22,7 @@ import { ObjectIdParam } from '../types/object-id.type.js';
 import { ResponseCT } from '../types/response-custom-type.type.js';
 import { checkLoggedUser } from '../utils/check-user-set.js';
 import { Users } from '../user/user-model.js';
+import { RegisterForBootcampDto } from './types/register-for-bootcamp.dto.js';
 
 // @desc  Get all bootcamps
 // @route GET /api/v1/bootcamps
@@ -126,7 +127,7 @@ export const updateBootcamp = asyncHandler(
 // @access Private
 export const registerForBootcamp = asyncHandler(
   async (
-    req: Request<{ id: string }, {}, { user: string }>,
+    req: Request<{ id: string }, {}, RegisterForBootcampDto>,
     res: ResponseCT<{ data: WithId<BootcampPopulated> }>,
     next: NextFunction
   ) => {

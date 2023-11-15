@@ -63,7 +63,9 @@ async function configureQuery<T extends ResourceType>(
   // mongoose operators
   queryStr = queryStr.replace(/\b(gt|gte|lt|lte|in)\b/, (match) => `$${match}`);
 
-  pipelineStages.push({ $match: JSON.parse(queryStr) });
+  const matchArgs = JSON.parse(queryStr);
+  parseNumbers(matchArgs);
+  pipelineStages.push({ $match: matchArgs });
 
   // SELECT FIELDS
   if (req.query.select) {
@@ -107,30 +109,46 @@ async function configureQuery<T extends ResourceType>(
   if (populateArgs) {
     for (const populateArg of populateArgs) {
       const path = populateArg.path;
-      const fieldsToSelect = (populateArg.select || []).reduce(
-        (acc, cur) => ({ ...acc, [cur]: 1 }),
-        {}
-      );
       const collectionName = populateArg.collection;
       const excludePopulate =
         req.query.select && !req.query.select.split(',').includes(path);
       if (!excludePopulate) {
-        pipelineStages.push({
-          $lookup: {
-            from: collectionName,
-            localField: path,
-            foreignField: '_id',
-            as: path,
+        pipelineStages.push(
+          {
+            $lookup: {
+              from: collectionName,
+              localField: path,
+              foreignField: '_id',
+              as: path,
+            },
           },
-          $project: {
-            [path]: fieldsToSelect,
+          {
+            $unwind: {
+              path: `$${path}`,
+              preserveNullAndEmptyArrays: true,
+            },
           },
-        });
+          ...nullArrayReplacement(path),
+          {
+            $project: {
+              parent: '$$ROOT',
+              [path]: projectionArgForPath(path, populateArg.select),
+            },
+          },
+          {
+            $replaceRoot: {
+              newRoot: {
+                $mergeObjects: [`$parent`, { [path]: `$${path}` }],
+              },
+            },
+          }
+        );
       }
     }
   }
 
   const query = collection.aggregate<T>(pipelineStages);
+
   const results = await query.toArray();
 
   // Pagination result
@@ -160,3 +178,59 @@ async function configureQuery<T extends ResourceType>(
   };
   next();
 }
+
+const LOOKUP_NON_ARRAY_SUBDOC_PATHS = ['owner', 'author'];
+// TODO find a smarter way to do the aggregation so this function with hardcoded values is not needed
+const nullArrayReplacement = (path: string) => {
+  if (LOOKUP_NON_ARRAY_SUBDOC_PATHS.includes(path)) {
+    return [];
+  }
+
+  return [
+    {
+      $addFields: {
+        [path]: {
+          $cond: {
+            if: { $eq: [{ $type: `$${path}` }, 'missing'] },
+            then: [],
+            else: `$${path}`,
+          },
+        },
+      },
+    },
+  ];
+};
+
+const projectionArgForPath = (
+  path: string,
+  fieldsToInclude: readonly string[] = []
+) => {
+  return fieldsToInclude.reduce((acc, field) => {
+    Object.assign(acc, { [field]: `$${path}.` + field });
+    return acc;
+  }, {});
+};
+
+// TODO find a smarter way to do the aggregation so this function with hardcoded values is not needed
+const NUMBER_FIELDS = [
+  'tuition',
+  'weeks',
+  'rating',
+  'averageRating',
+  'averageCost',
+];
+const parseNumbers = (matchArgs: {
+  [key: string]: { [operator: string]: string | number } | string | number;
+}) => {
+  for (const key of Object.keys(matchArgs)) {
+    if (!NUMBER_FIELDS.includes(key)) {
+      continue;
+    }
+    const arg = matchArgs[key];
+    if (typeof arg === 'object') {
+      const [operator] = Object.keys(arg);
+      const [value] = Object.values(arg);
+      arg[operator] = Number(value);
+    }
+  }
+};

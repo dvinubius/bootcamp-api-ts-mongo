@@ -23,6 +23,7 @@ export const BootcampCreateDto = z.object({
   jobGuarantee: z.boolean(),
   acceptGi: z.boolean(),
 });
+export const BootcampUpdateDto = BootcampCreateDto.partial();
 
 export type BootcampCreateDto = z.infer<typeof BootcampCreateDto>;
 export type BootcampUpdateDto = Partial<BootcampCreateDto>;
@@ -62,7 +63,7 @@ export type BootcampPopulated = Bootcamp & {
 export const Bootcamps = db.collection<Bootcamp>('bootcamps');
 
 // advancedSearch middleware config
-export const BC_DEFAULT_POPULATE: PopulateArg[] = [
+export const BOOTCAMP_DEFAULT_POPULATE: PopulateArg[] = [
   { path: 'courses', collection: 'courses', select: BOOTCAMP_COURSES_FIELDS },
   { path: 'owner', collection: 'users', select: BOOTCAMP_OWNER_FIELDS },
   {

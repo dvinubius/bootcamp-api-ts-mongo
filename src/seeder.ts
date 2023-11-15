@@ -69,8 +69,12 @@ const importData = async () => {
     await createIndexes();
     // USERS
     for (const user of users) {
-      const validUserDto = await UserCreateDto.parseAsync(user);
-      await execRegisterUser(validUserDto);
+      await UserCreateDto.parseAsync(user);
+      const withId = {
+        ...user,
+        _id: new ObjectId(user._id),
+      };
+      await execRegisterUser(withId);
     }
     // BOOTCAMPS
     for (const bootcamp of bootcamps) {
@@ -79,7 +83,11 @@ const importData = async () => {
       const loggedUser = {
         _id: new ObjectId(bootcamp.owner),
       } as WithId<User>;
-      await execCreateBootcamp(bootcamp, loggedUser);
+      const withId = {
+        ...bootcamp,
+        _id: new ObjectId(bootcamp._id),
+      };
+      await execCreateBootcamp(withId, loggedUser);
     }
     // COURSES
     for (const course of courses) {
@@ -89,8 +97,12 @@ const importData = async () => {
       const loggedUser = {
         _id: new ObjectId(course.owner),
       } as WithId<User>;
+      const withId = {
+        ...course,
+        _id: new ObjectId(course._id),
+      };
       await execCreateCourse(
-        course,
+        withId,
         bootcamp as unknown as WithId<Bootcamp>,
         loggedUser
       );
@@ -103,8 +115,12 @@ const importData = async () => {
       const loggedUser = {
         _id: new ObjectId(review.author),
       } as unknown as WithId<User>;
+      const withId = {
+        ...review,
+        _id: new ObjectId(review._id),
+      };
       await execCreateReview(
-        review,
+        withId,
         bootcamp as unknown as WithId<Bootcamp>,
         loggedUser
       );

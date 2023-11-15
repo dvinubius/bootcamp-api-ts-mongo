@@ -15,6 +15,7 @@ export const CourseCreateDto = z.object({
   minimumSkill: z.enum(MINIMUM_SKILLS),
   scholarshipAvailable: z.boolean(),
 });
+export const CourseUpdateDto = CourseCreateDto.partial();
 
 export type CourseCreateDto = z.infer<typeof CourseCreateDto>;
 export type CourseUpdateDto = Partial<CourseCreateDto>;

@@ -1,23 +1,32 @@
 # Bootcamp API - Typescript & vanilla mongoDB client & Zod
 
-- Reference to mongoose version
-- Reference to medium article(s)
+- TS + Mongoose version is in this (repo)[https://github.com/dvinubius/bootcamp-api-ts-goose]
 
-# TODO provide link
+- Reference to medium (article(s))[https://medium.com]
+
+### TODO medium link
 
 ## basic mongoose + TS
 
-- X - drop mongoose dependency
-- X - mongo client setup
-- X - schema design via zod
-- X - index on reviews
-- actually validate with ZOD
+- ✅ drop mongoose dependency
+- ✅ mongo client setup
+- ✅ schema design via zod
+- ✅ actually validate with ZOD
+- ✅ index on reviews
+- ✅ extract service logic from route handlers
+- ✅ change schema design: bootcamp references populated persistently, other references are looked up
+- ✅ replicate mongoose middleware (calculations) with mongo adaptor
+- ✅ replicate mongoose lookups with mongo adaptor
+- ✅ update seeder to accomodate new schema
+- ✅ advanced search with mongo adaptor: aggregation pipeline incl. advanced filtering
 
-## alternate solutions for mongoose middleware
+## Schema Design Summary
 
 CONSTRAINTS
 -- user owner of bootcamp is the only one who can add a course to that bootcamp --
 -- max 1 bootcamp per owner --
+
+> Only bootcamps references are persisted as subdocuments. The others are looked up on the fly when requested.
 
 BOOTCAMP
 
@@ -40,42 +49,12 @@ COURSE
 - bootcamp: subDoc
 - owner: ref
 
---> first make populate work, then add parameters (specify fields to be selected)
+## Suboptimal Functionality / Design
 
-- use redudant data instead of (reverse) populate / custom lookups
+- Missing Error Handling (always assuming db CRUD ops succeed)
+- No atomicity in operations (basic CRUD + hook-equivalents should occur together atomically)
 
-  - bootcamp.owner (ref -> populate) [CONVERT-REDUNDANT]
-
-  - bootcamp.participants (ref -> populate) [KEEP-DYNAMIC]
-
-  - bootcamp.courses (virtual -> reverse populate) [CONVERT-REDUNDANT]
-
-  - user.bootcampOwned - keep as ref
-
-  - user.bootcampsJoined (custom lookup) [KEEP-REDUNDANT]
-
-  - course.owner (ref -> populate) [CONVERT-REDUNDANT]
-
-- custom MW hooks
-
-  - bootcamp.slug
-  - bootcamp.address
-  - bootcamp delete -> cascade to courses -> cascade to user's bootcamps owned & joined
-
-  - course -> bootcamp.averageCost
-
-  - review -> course.averageRating
-
-- OPTIMIZE DESIGN FOR SPLITS IN RESPONSIBILITY (not too much logic in handlers?)
-- MAKE OPERATIONS ATOMIC
-- flexible lookup in advancedSearch
-- make all fields unique in schemas be unique here, too -> index?
-
-  - email
-  - ... ?
-
-## Missing Error Handling
-
-- intentional
-
-## No atomicity in operations (core + hook-equivalents)
+- Advanced search
+  - not properly validating queryParams -> suboptimal error handling
+  - agg pipeline stages for advanced filtering uses hardcoded fields (identify fields that are arrays)
+  - casting of queryParams to numbers where necessary -> identified based on hardcoded fields

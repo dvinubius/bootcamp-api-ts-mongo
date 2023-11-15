@@ -11,6 +11,7 @@ export const ReviewCreateDto = z.object({
   text: z.string().min(10),
   rating: z.number().min(1).max(10),
 });
+export const ReviewUpdateDto = ReviewCreateDto.partial();
 
 export type ReviewCreateDto = z.infer<typeof ReviewCreateDto>;
 export type ReviewUpdateDto = Partial<ReviewCreateDto>;

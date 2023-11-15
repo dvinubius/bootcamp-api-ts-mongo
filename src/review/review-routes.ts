@@ -1,6 +1,11 @@
 import express from 'express';
 
-import { REVIEW_DEFAULT_POPULATE, Review, Reviews } from './review-model.js';
+import {
+  REVIEW_DEFAULT_POPULATE,
+  Review,
+  ReviewUpdateDto,
+  Reviews,
+} from './review-model.js';
 import {
   getReviews,
   getReview,
@@ -9,22 +14,20 @@ import {
 } from './review-controller.js';
 import advancedResults from '../middleware/advanced-results.js';
 import { protect } from '../auth/auth-middleware.js';
+import { validateRequest } from '../middleware/validate-request.js';
 
 const router = express.Router({ mergeParams: true });
 
-// prettier-ignore
 router.route('/').get(
-  advancedResults<Review>(
-    Reviews, 
-    REVIEW_DEFAULT_POPULATE
-  ),
+  // TODO validate request query
+  advancedResults<Review>(Reviews, REVIEW_DEFAULT_POPULATE),
   getReviews
 );
 
-// prettier-ignore
-router.route('/:id')
+router
+  .route('/:id')
   .get(getReview)
-  .put(protect, updateReview)
-  .delete(protect, deleteReview)
+  .put(protect, validateRequest({ body: ReviewUpdateDto }), updateReview)
+  .delete(protect, deleteReview);
 
 export default router;

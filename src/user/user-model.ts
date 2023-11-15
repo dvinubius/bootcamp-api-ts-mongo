@@ -12,6 +12,10 @@ export const UserCreateDto = z.object({
   role: z.enum(ROLES),
   password: z.string().min(6),
 });
+export const UserUpdateDto = UserCreateDto.pick({
+  role: true,
+  password: true,
+}).partial();
 
 export type UserCreateDto = z.infer<typeof UserCreateDto>;
 export type UserUpdateDto = Partial<Omit<UserCreateDto, 'role' | 'password'>>;

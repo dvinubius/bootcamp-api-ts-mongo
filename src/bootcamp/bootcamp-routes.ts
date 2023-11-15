@@ -14,13 +14,20 @@ import {
   Course,
   Courses,
   COURSE_DEFAULT_POPULATE,
+  CourseCreateDto,
 } from '../course/course-model.js';
 import {
   REVIEW_DEFAULT_POPULATE,
   Review,
+  ReviewCreateDto,
   Reviews,
 } from '../review/review-model.js';
-import { BC_DEFAULT_POPULATE, Bootcamp, Bootcamps } from './bootcamp-model.js';
+import {
+  BOOTCAMP_DEFAULT_POPULATE,
+  Bootcamp,
+  BootcampCreateDto,
+  Bootcamps,
+} from './bootcamp-model.js';
 import advancedResults from '../middleware/advanced-results.js';
 import { protect, authorize } from '../auth/auth-middleware.js';
 import {
@@ -31,45 +38,75 @@ import {
   addReview,
   getReviewsForBootcamp,
 } from '../review/review-controller.js';
+import { validateRequest } from '../middleware/validate-request.js';
+import { BootcampUpdateDto } from './bootcamp-model.js';
+import { RegisterForBootcampDto } from './types/register-for-bootcamp.dto.js';
 
 const router = express.Router();
 
 router.route('/radius/:zipcode/:distance').get(getBootcampsInRadius);
 
-// prettier-ignore
-router.route('/')
-  .get(advancedResults<Bootcamp>(
-    Bootcamps,
-    BC_DEFAULT_POPULATE
-  ), getBootcamps)
-  .post(protect, authorize('publisher', 'admin'), createBootcamp);
+router
+  .route('/')
+  .get(
+    // TODO validate request query
+    advancedResults<Bootcamp>(Bootcamps, BOOTCAMP_DEFAULT_POPULATE),
+    getBootcamps
+  )
+  .post(
+    protect,
+    authorize('publisher', 'admin'),
+    validateRequest({ body: BootcampCreateDto }),
+    createBootcamp
+  );
 
-// prettier-ignore
-router.route('/:id')
+router
+  .route('/:id')
   .get(getBootcamp)
-  .put(protect, authorize('publisher', 'admin'), updateBootcamp)
+  .put(
+    protect,
+    authorize('publisher', 'admin'),
+    validateRequest({ body: BootcampUpdateDto }),
+    updateBootcamp
+  )
   .delete(protect, authorize('publisher', 'admin'), deleteBootcamp);
 
-// prettier-ignore
-router.route('/:id/courses')
-    .get(advancedResults<Course>(
-      Courses, 
-      COURSE_DEFAULT_POPULATE
-    ), getCoursesForBootcamp)
-    .post(protect, authorize('publisher', 'admin'), addCourse);
+router
+  .route('/:id/courses')
+  .get(
+    // TODO validate request query
+    advancedResults<Course>(Courses, COURSE_DEFAULT_POPULATE),
+    getCoursesForBootcamp
+  )
+  .post(
+    protect,
+    authorize('publisher', 'admin'),
+    validateRequest({ body: CourseCreateDto }),
+    addCourse
+  );
 
-// prettier-ignore
 router
   .route('/:id/reviews')
-  .get(advancedResults<Review>(
-    Reviews, 
-    REVIEW_DEFAULT_POPULATE
-  ), getReviewsForBootcamp)
-  .post(protect, authorize('user', 'admin'), addReview);
+  .get(
+    // TODO validate request query
+    advancedResults<Review>(Reviews, REVIEW_DEFAULT_POPULATE),
+    getReviewsForBootcamp
+  )
+  .post(
+    protect,
+    authorize('user', 'admin'),
+    validateRequest({ body: ReviewCreateDto }),
+    addReview
+  );
 
 router
   .route('/:id/register')
-  .post(protect, authorize('admin'), registerForBootcamp);
+  .post(
+    protect,
+    authorize('admin'),
+    validateRequest({ body: RegisterForBootcampDto }),
+    registerForBootcamp
+  );
 
 router
   .route('/:id/photo')
