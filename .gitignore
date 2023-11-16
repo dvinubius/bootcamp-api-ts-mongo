@@ -2,7 +2,7 @@ node_modules
 
 starter
 
-config/config.env
-config/config2.env
+src/config/config.env
+.env
 
 .DS_Store
