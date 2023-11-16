@@ -4,7 +4,7 @@
 
 - Reference to medium [article(s)](https://medium.com)
 
-### TODO medium link
+### TODO medium link 👆
 
 ## basic mongoose + TS
 
