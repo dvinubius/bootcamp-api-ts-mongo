@@ -2,9 +2,7 @@
 
 - TS + Mongoose version is in this [repo](https://github.com/dvinubius/bootcamp-api-ts-goose)
 
-- Reference to medium [article(s)](https://medium.com)
-
-### TODO medium link 👆
+- Discussed in Medium [article(s)](https://medium.com)
 
 ## basic mongoose + TS
 
